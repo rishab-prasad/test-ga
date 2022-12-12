@@ -42,17 +42,17 @@ jobs:
 
       # Open-Source Machine emulator that allows you to emulate multiple CPU architectures on your machine
       - name: Set up QEMU
-        if: github.event_name == 'push'
+        #if: github.event_name == 'push'
         uses: docker/setup-qemu-action@v1
 
       # Docker CLI plugin for extended build capabilities with BuildKit
       - name: Set up Docker Buildx
-        if: github.event_name == 'push'
+        #if: github.event_name == 'push'
         id: buildx
         uses: docker/setup-buildx-action@v1
 
       - name: Inspect builder
-        if: github.event_name == 'push'
+        #if: github.event_name == 'push'
         run: |
           echo "Name:      ${{ steps.buildx.outputs.name }}"
           echo "Endpoint:  ${{ steps.buildx.outputs.endpoint }}"
@@ -61,15 +61,15 @@ jobs:
           echo "Platforms: ${{ steps.buildx.outputs.platforms }}"
 
       - name: Build and Test In Memory Variant
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/master'
         run: make SKIP_TESTS=false BUILD_FLAGS='-Dmaven.wagon.httpconnectionManager.maxTotal=30 -Dmaven.wagon.http.retryHandler.count=5 --no-transfer-progress' build-in-memory
 
       - name: Build and Test In Memory Variant Without UI
-        if: github.ref != 'refs/heads/main'
+        if: github.ref != 'refs/heads/master'
         run: make SKIP_TESTS=false BUILD_FLAGS='-DskipUiBuild -Dmaven.wagon.httpconnectionManager.maxTotal=30 -Dmaven.wagon.http.retryHandler.count=5 --no-transfer-progress' build-in-memory
 
       - name: Build and Push In Memory Multi-arch Images to Docker.io
-        if: github.event_name == 'push'
+        #if: github.event_name == 'push'
         run: docker buildx build --push -f ./distro/docker/target/docker/Dockerfile.jvm -t docker.io/apicurio/apicurio-registry-mem:latest-snapshot --platform linux/amd64,linux/arm64,linux/s390x,linux/ppc64le ./distro/docker/target/docker
 
       
